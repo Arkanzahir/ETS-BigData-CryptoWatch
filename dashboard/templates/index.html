@@ -94,7 +94,7 @@
             // Get latest price per symbol
             const latest = {};
             data.forEach(item => {
-                if (!latest[item.symbol] || item.timestamp > latest[item.symbol].timestamp) {
+                if (item && item.symbol && (!latest[item.symbol] || item.timestamp > latest[item.symbol].timestamp)) {
                     latest[item.symbol] = item;
                 }
             });

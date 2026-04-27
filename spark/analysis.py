@@ -55,7 +55,7 @@ print("-" * 50)
 
 try:
     df_api = spark.read.option("multiLine", True).json(HDFS_API_PATH)
-    df_api.printSchema()
+    df_api = df_api.filter(col("symbol").isNotNull() & col("timestamp").isNotNull())
     print(f"Total records API: {df_api.count()}")
 
     # Register sebagai SQL view
@@ -124,7 +124,7 @@ print("-" * 50)
 
 try:
     df_rss = spark.read.option("multiLine", True).json(HDFS_RSS_PATH)
-    df_rss.printSchema()
+    df_rss = df_rss.filter(col("timestamp").isNotNull())
     print(f"Total records RSS: {df_rss.count()}")
 
     df_rss.createOrReplaceTempView("crypto_news")
