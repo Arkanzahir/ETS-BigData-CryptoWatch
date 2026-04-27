@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoWatch Dashboard — Kelompok 7</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>💰 CryptoWatch Dashboard</h1>
+            <p class="subtitle">Big Data & Data Lakehouse — Kelompok 7</p>
+            <div class="status-bar">
+                <span id="status-indicator" class="status-dot"></span>
+                <span id="last-update">Memuat data...</span>
+                <span class="auto-refresh">Auto-refresh: 30s</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Panel 1: Live Crypto Prices -->
+        <section class="panel" id="panel-live">
+            <h2>📈 Harga Kripto Real-Time</h2>
+            <div id="live-prices" class="price-grid">
+                <div class="price-card loading">
+                    <p>Menunggu data dari Kafka...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: Spark Analysis Results -->
+        <section class="panel" id="panel-spark">
+            <h2>⚡ Hasil Analisis Spark</h2>
+            
+            <div class="analysis-section">
+                <h3>📊 Statistik Harga Per Koin</h3>
+                <div id="stats-table-container">
+                    <p class="loading-text">Menunggu hasil analisis Spark...</p>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>📉 Volatilitas Per Jam</h3>
+                <div class="chart-container">
+                    <canvas id="volatilityChart"></canvas>
+                </div>
+            </div>
+
+            <div class="analysis-section">
+                <h3>📰 Volume Berita Per Jam</h3>
+                <div class="chart-container">
+                    <canvas id="newsVolumeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 3: Latest News -->
+        <section class="panel" id="panel-news">
+            <h2>📰 Berita Kripto Terbaru</h2>
+            <div id="news-feed">
+                <p class="loading-text">Menunggu berita dari RSS feed...</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>CryptoWatch — ETS Big Data & Data Lakehouse 2026 | Kelompok 7</p>
+    </footer>
+
+    <script>
+        let volatilityChart = null;
+        let newsVolumeChart = null;
+
+        function formatPrice(price) {
+            if (!price) return 'N/A';
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+        }
+
+        function formatIDR(price) {
+            if (!price) return 'N/A';
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(price);
+        }
+
+        function renderLivePrices(data) {
+            const container = document.getElementById('live-prices');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="price-card"><p>Belum ada data</p></div>';
+                return;
+            }
+
+            // Get latest price per symbol
+            const latest = {};
+            data.forEach(item => {
+                if (!latest[item.symbol] || item.timestamp > latest[item.symbol].timestamp) {
+                    latest[item.symbol] = item;
+                }
+            });
+
+            const icons = { 'BTC': '₿', 'ETH': 'Ξ', 'BNB': '◆' };
+            const names = { 'BTC': 'Bitcoin', 'ETH': 'Ethereum', 'BNB': 'BNB' };
+
+            container.innerHTML = Object.values(latest).map(coin => {
+                const changeClass = coin.change_24h >= 0 ? 'positive' : 'negative';
+                const changeIcon = coin.change_24h >= 0 ? '▲' : '▼';
+                const change = coin.change_24h ? coin.change_24h.toFixed(2) : '0.00';
+                return `
+                    <div class="price-card">
+                        <div class="coin-header">
+                            <span class="coin-icon">${icons[coin.symbol] || '●'}</span>
+                            <div>
+                                <span class="coin-symbol">${coin.symbol}</span>
+                                <span class="coin-name">${names[coin.symbol] || coin.coin_id}</span>
+                            </div>
+                        </div>
+                        <div class="coin-price">${formatPrice(coin.price_usd)}</div>
+                        <div class="coin-price-idr">${formatIDR(coin.price_idr)}</div>
+                        <div class="coin-change ${changeClass}">
+                            ${changeIcon} ${change}%
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderStatsTable(data) {
+            const container = document.getElementById('stats-table-container');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="loading-text">Belum ada data analisis</p>';
+                return;
+            }
+
+            let html = `<table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Koin</th>
+                        <th>Avg Price</th>
+                        <th>Max Price</th>
+                        <th>Min Price</th>
+                        <th>Std Dev</th>
+                        <th>Records</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            data.forEach(row => {
+                html += `<tr>
+                    <td class="coin-col">${row.symbol}</td>
+                    <td>${formatPrice(row.avg_price)}</td>
+                    <td class="positive">${formatPrice(row.max_price)}</td>
+                    <td class="negative">${formatPrice(row.min_price)}</td>
+                    <td>${row.stddev_price ? '$' + row.stddev_price.toFixed(2) : 'N/A'}</td>
+                    <td>${row.total_records}</td>
+                </tr>`;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderVolatilityChart(data) {
+            if (!data || data.length === 0) return;
+            
+            const ctx = document.getElementById('volatilityChart').getContext('2d');
+            const labels = data.map(d => d.jam + ':00');
+            const values = data.map(d => d.avg_volatility);
+
+            if (volatilityChart) volatilityChart.destroy();
+            
+            volatilityChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avg Volatilitas (%)',
+                        data: values,
+                        backgroundColor: values.map(v => v > 3 ? '#ff174488' : '#00c85388'),
+                        borderColor: values.map(v => v > 3 ? '#ff1744' : '#00c853'),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#aaa' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+        }
+
+        function renderNewsVolumeChart(data) {
+            if (!data || data.length === 0) return;
+            
+            const ctx = document.getElementById('newsVolumeChart').getContext('2d');
+            const sorted = [...data].sort((a, b) => a.jam - b.jam);
+            const labels = sorted.map(d => d.jam + ':00');
+            const values = sorted.map(d => d.jumlah_artikel);
+
+            if (newsVolumeChart) newsVolumeChart.destroy();
+            
+            newsVolumeChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Artikel',
+                        data: values,
+                        borderColor: '#448aff',
+                        backgroundColor: '#448aff22',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+                        y: { ticks: { color: '#aaa' }, grid: { color: '#333' } }
+                    }
+                }
+            });
+        }
+
+        function renderNewsFeed(data) {
+            const container = document.getElementById('news-feed');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<p class="loading-text">Belum ada berita</p>';
+                return;
+            }
+
+            // Sort by timestamp, newest first, take top 5
+            const sorted = [...data].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            ).slice(0, 8);
+
+            container.innerHTML = sorted.map(article => `
+                <div class="news-item">
+                    <a href="${article.link}" target="_blank" class="news-title">${article.title}</a>
+                    <div class="news-meta">
+                        <span class="news-source">${article.source || 'Unknown'}</span>
+                        <span class="news-time">${new Date(article.published || article.timestamp).toLocaleString('id-ID')}</span>
+                    </div>
+                    <p class="news-summary">${(article.summary || '').replace(/<[^>]*>/g, '').substring(0, 150)}...</p>
+                </div>
+            `).join('');
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/data');
+                const data = await response.json();
+
+                // Update status
+                document.getElementById('status-indicator').classList.add('active');
+                document.getElementById('last-update').textContent = 
+                    'Update: ' + new Date(data.updated_at).toLocaleTimeString('id-ID');
+
+                // Render panels
+                if (data.live_api) renderLivePrices(data.live_api);
+                if (data.live_rss) renderNewsFeed(data.live_rss);
+                
+                if (data.spark_results) {
+                    renderStatsTable(data.spark_results.analisis_1_statistik_harga);
+                    renderVolatilityChart(data.spark_results.analisis_2_volatilitas_per_jam);
+                    renderNewsVolumeChart(data.spark_results.analisis_3_volume_berita);
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('status-indicator').classList.remove('active');
+                document.getElementById('last-update').textContent = 'Koneksi terputus...';
+            }
+        }
+
+        // Initial fetch
+        fetchData();
+
+        // Auto-refresh every 30 seconds
+        setInterval(fetchData, 30000);
+    </script>
+</body>
+</html>

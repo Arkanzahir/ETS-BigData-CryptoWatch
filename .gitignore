@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Data files (biarkan folder data, tapi ignore isinya)
+dashboard/data/*.json
+!dashboard/data/.gitkeep
+
+# HDFS / Hadoop temp files
+/tmp/
+*.log

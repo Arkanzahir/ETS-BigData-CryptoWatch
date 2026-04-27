@@ -1,0 +1,323 @@
+/* CryptoWatch Dashboard — Kelompok 7 */
+/* Dark theme, modern crypto dashboard */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0e17;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background: linear-gradient(135deg, #0d1321, #1a2332);
+    border-bottom: 1px solid #1e3a5f;
+    padding: 1.5rem 2rem;
+}
+
+.header-content h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: #64b5f6;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #666;
+    display: inline-block;
+    transition: background 0.3s;
+}
+
+.status-dot.active {
+    background: #00c853;
+    box-shadow: 0 0 8px #00c85388;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.auto-refresh {
+    margin-left: auto;
+    color: #555;
+    font-size: 0.8rem;
+}
+
+/* Main Layout */
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Panel */
+.panel {
+    background: #111827;
+    border: 1px solid #1e2d3d;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.3s;
+}
+
+.panel:hover {
+    border-color: #2a4a6b;
+}
+
+.panel h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #1e2d3d;
+}
+
+/* Price Grid */
+.price-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.price-card {
+    background: linear-gradient(135deg, #141c2b, #1a2538);
+    border: 1px solid #1e3a5f;
+    border-radius: 10px;
+    padding: 1.25rem;
+    transition: transform 0.2s, border-color 0.3s;
+}
+
+.price-card:hover {
+    transform: translateY(-2px);
+    border-color: #448aff;
+}
+
+.coin-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.coin-icon {
+    font-size: 2rem;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1e2d3d;
+    border-radius: 50%;
+}
+
+.coin-symbol {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    display: block;
+}
+
+.coin-name {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.coin-price {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.25rem;
+}
+
+.coin-price-idr {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+}
+
+.coin-change {
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.coin-change.positive {
+    color: #00c853;
+    background: #00c85315;
+}
+
+.coin-change.negative {
+    color: #ff1744;
+    background: #ff174415;
+}
+
+/* Analysis Sections */
+.analysis-section {
+    margin-bottom: 1.5rem;
+}
+
+.analysis-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #90caf9;
+    margin-bottom: 0.75rem;
+}
+
+/* Data Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.data-table th {
+    background: #1a2538;
+    color: #90caf9;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid #1e3a5f;
+}
+
+.data-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid #1e2d3d;
+    color: #ccc;
+}
+
+.data-table tr:hover td {
+    background: #141c2b;
+}
+
+.data-table .coin-col {
+    font-weight: 700;
+    color: #fff;
+}
+
+.data-table .positive {
+    color: #00c853;
+}
+
+.data-table .negative {
+    color: #ff1744;
+}
+
+/* Chart Container */
+.chart-container {
+    background: #0d1321;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #1e2d3d;
+}
+
+/* News Feed */
+.news-item {
+    padding: 1rem;
+    border-bottom: 1px solid #1e2d3d;
+    transition: background 0.2s;
+}
+
+.news-item:last-child {
+    border-bottom: none;
+}
+
+.news-item:hover {
+    background: #141c2b;
+}
+
+.news-title {
+    color: #64b5f6;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    display: block;
+    margin-bottom: 0.4rem;
+}
+
+.news-title:hover {
+    color: #90caf9;
+    text-decoration: underline;
+}
+
+.news-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.78rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+}
+
+.news-source {
+    color: #448aff;
+    font-weight: 500;
+}
+
+.news-summary {
+    font-size: 0.85rem;
+    color: #888;
+    line-height: 1.4;
+}
+
+/* Loading */
+.loading-text {
+    color: #555;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    color: #444;
+    font-size: 0.8rem;
+    border-top: 1px solid #1e2d3d;
+    margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .price-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    main {
+        padding: 1rem;
+    }
+    
+    .header-content h1 {
+        font-size: 1.4rem;
+    }
+}
