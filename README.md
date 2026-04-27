@@ -7,7 +7,6 @@
 - **Zahra Hafizhah (Anggota 4):** `spark/analysis.ipynb` — 3 analisis wajib (+ 1 bonus MLlib)
 - **Tiara Fatimah (Anggota 5):** `dashboard/app.py` + `index.html`
 
-![CryptoWatch Dashboard](dashboard/static/preview.png)
 
 ## Deskripsi Proyek
 CryptoWatch adalah sebuah end-to-end Big Data Pipeline untuk memantau harga dan berita Cryptocurrency (Bitcoin, Ethereum, Binance Coin) secara real-time. Proyek ini dibangun untuk memenuhi evaluasi tengah semester (ETS) mata kuliah Big Data dan Data Lakehouse.
