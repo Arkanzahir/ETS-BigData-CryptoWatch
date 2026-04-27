@@ -119,8 +119,7 @@ consumer = KafkaConsumer(
     enable_auto_commit=True,
     value_deserializer=lambda m: json.loads(m.decode("utf-8")),
     key_deserializer=lambda k: k.decode("utf-8") if k else None,
-    max_poll_records=100,
-    consumer_timeout_ms=15000,  # Stop jika tidak ada data baru 15 detik
+    max_poll_records=100
 )
 
 print("=" * 60)
