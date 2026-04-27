@@ -30,6 +30,8 @@ services:
     depends_on:
       namenode:
         condition: service_started
+    ports:
+      - "9864:9864"
     env_file:
       - ./hadoop.env
     command: ["hdfs", "datanode"]
