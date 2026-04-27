@@ -13,6 +13,7 @@ echo "[1/4] Membersihkan proses lama..."
 pkill -f 'producer_api.py' 2>/dev/null
 pkill -f 'producer_rss.py' 2>/dev/null
 pkill -f 'consumer_to_hdfs.py' 2>/dev/null
+pkill -f 'spark/analysis.py' 2>/dev/null
 pkill -f 'app.py' 2>/dev/null
 
 echo "[2/4] Menyalakan Kafka Producers..."
@@ -24,7 +25,15 @@ echo "[3/4] Menyalakan HDFS Consumer..."
 # Jalankan consumer di background
 PYTHONUNBUFFERED=1 python kafka/consumer_to_hdfs.py > /tmp/consumer.log 2>&1 &
 
-echo "[4/4] Menyalakan Web Dashboard..."
+echo "[4/5] Menyalakan Spark Auto-Analyzer (tiap 60 detik)..."
+# Jalankan spark berulang di background
+while true; do
+    PYTHONUNBUFFERED=1 python spark/analysis.py > /tmp/spark.log 2>&1
+    sleep 60
+done &
+SPARK_PID=$!
+
+echo "[5/5] Menyalakan Web Dashboard..."
 # Jalankan dashboard
 echo "=================================================="
 echo "✅ SEMUA SISTEM BERJALAN!"
@@ -40,4 +49,5 @@ echo "Mematikan pipeline..."
 pkill -f 'producer_api.py' 2>/dev/null
 pkill -f 'producer_rss.py' 2>/dev/null
 pkill -f 'consumer_to_hdfs.py' 2>/dev/null
+kill $SPARK_PID 2>/dev/null
 echo "Selesai."
