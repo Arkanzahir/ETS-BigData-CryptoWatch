@@ -9,23 +9,29 @@ echo "=================================================="
 source venv/bin/activate
 
 # Matikan proses python sebelumnya jika ada (biar nggak bentrok)
-echo "[1/4] Membersihkan proses lama..."
+echo "[1/5] Membersihkan proses lama..."
 pkill -f 'producer_api.py' 2>/dev/null
 pkill -f 'producer_rss.py' 2>/dev/null
 pkill -f 'consumer_to_hdfs.py' 2>/dev/null
 pkill -f 'spark/analysis.py' 2>/dev/null
 pkill -f 'app.py' 2>/dev/null
 
-echo "[2/4] Menyalakan Kafka Producers..."
+echo "[2/5] Menyalakan Infrastruktur Docker (Kafka & Hadoop)..."
+docker-compose -f docker-compose-kafka.yml up -d
+docker-compose -f docker-compose-hadoop.yml up -d
+echo "Menunggu 20 detik agar Kafka dan Hadoop siap menerima data..."
+sleep 20
+
+echo "[3/5] Menyalakan Kafka Producers..."
 # Jalankan producers di background
 PYTHONUNBUFFERED=1 python kafka/producer_api.py > /tmp/prod_api.log 2>&1 &
 PYTHONUNBUFFERED=1 python kafka/producer_rss.py > /tmp/prod_rss.log 2>&1 &
 
-echo "[3/4] Menyalakan HDFS Consumer..."
+echo "[4/5] Menyalakan HDFS Consumer..."
 # Jalankan consumer di background
 PYTHONUNBUFFERED=1 python kafka/consumer_to_hdfs.py > /tmp/consumer.log 2>&1 &
 
-echo "[4/5] Menyalakan Spark Auto-Analyzer (tiap 60 detik)..."
+echo "[5/5] Menyalakan Spark Auto-Analyzer (tiap 60 detik)..."
 # Jalankan spark berulang di background
 while true; do
     PYTHONUNBUFFERED=1 python spark/analysis.py > /tmp/spark.log 2>&1
@@ -33,7 +39,7 @@ while true; do
 done &
 SPARK_PID=$!
 
-echo "[5/5] Menyalakan Web Dashboard..."
+echo "[Mulai] Menyalakan Web Dashboard..."
 # Jalankan dashboard
 echo "=================================================="
 echo "✅ SEMUA SISTEM BERJALAN!"
