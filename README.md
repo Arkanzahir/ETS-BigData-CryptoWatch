@@ -1,4 +1,4 @@
-# CryptoWatch — Big Data & Data Lakehouse Pipeline
+# CryptoWatch Big Data & Data Lakehouse Pipeline
 
 **Kelompok 7 Pembagian Tugas:**
 - **Mohamad Arkan Zahir A. (Anggota 1):** Setup Docker (Hadoop & Kafka), buat topic, troubleshooting infrastruktur
