@@ -1,6 +1,6 @@
 """
 analysis.py — Apache Spark Analysis untuk CryptoWatch
-# [Zahra Hafizhah]: Spark analysis - 3 analisis wajib dari HDFS
+# [Tiara Fatimah A] Spark analysis - 3 analisis wajib dari HDFS
 
 Membaca data dari HDFS, melakukan 3 analisis wajib:
 1. Statistik harga per koin (avg, max, min, stddev)
