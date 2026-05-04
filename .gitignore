@@ -12,3 +12,5 @@ dashboard/data/*.json
 *.log
 test_connection.py
 spark/*.ipynb
+dashboard/frontend_source/.bolt/
+dashboard/frontend_source/supabase/
