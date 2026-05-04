@@ -1,6 +1,6 @@
 """
 consumer_to_hdfs.py — Kafka Consumer → HDFS + Local JSON
-# [Nafis Faqih A.M.]: Consumer yang membaca dari Kafka dan menyimpan ke HDFS
+# [Zahra Hafidzah]: Consumer yang membaca dari Kafka dan menyimpan ke HDFS
 
 Membaca dari topic 'crypto-api' dan 'crypto-rss'.
 Buffer events selama 2 menit, lalu flush ke HDFS sebagai JSON file.
