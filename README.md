@@ -2,10 +2,10 @@
 
 **Kelompok 7 Pembagian Tugas:**
 - **Mohamad Arkan Zahir A. (Anggota 1):** Setup Docker (Hadoop & Kafka), buat topic, troubleshooting infrastruktur
-- **Ananda Widi Alrafi (Anggota 2):** `producer_api.py` — integrasi API eksternal
+- **Zahra Hafizhah (Anggota 2):** `producer_api.py` — integrasi API eksternal
 - **Nafis Faqih A.M. (Anggota 3):** `producer_rss.py` + `consumer_to_hdfs.py`
-- **Zahra Hafizhah (Anggota 4):** `spark/analysis.ipynb` — 3 analisis wajib (+ 1 bonus MLlib)
-- **Tiara Fatimah (Anggota 5):** `dashboard/app.py` + `index.html`
+- **Tiara Fatimah Azzahra (Anggota 4):** `spark/analysis.ipynb` — 3 analisis wajib (+ 1 bonus MLlib)
+- **Ananda Widi Alrafi (Anggota 5):** `dashboard/app.py` + `index.html`
 
 
 ## Deskripsi Proyek
