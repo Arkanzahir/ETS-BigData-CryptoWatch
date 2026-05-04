@@ -1,6 +1,6 @@
 """
 app.py — Flask Dashboard untuk CryptoWatch
-# [Tiara Fatimah]: Dashboard Flask dengan auto-refresh
+# [Rafi]: Dashboard Flask dengan auto-refresh
 
 Dashboard menampilkan:
 - Panel 1: Hasil analisis Spark (statistik harga)
