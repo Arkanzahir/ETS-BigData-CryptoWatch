@@ -23,6 +23,10 @@ echo "Menunggu 20 detik agar Kafka dan Hadoop siap menerima data..."
 sleep 20
 
 echo "[2.5/5] Memastikan semua folder HDFS tersedia..."
+# Paksa Hadoop keluar dari Safe Mode agar pembuatan folder tidak gagal
+docker exec hadoop-namenode hdfs dfsadmin -safemode leave || true
+sleep 2
+
 docker exec hadoop-namenode hdfs dfs -mkdir -p /data/crypto/api
 docker exec hadoop-namenode hdfs dfs -mkdir -p /data/crypto/rss
 docker exec hadoop-namenode hdfs dfs -mkdir -p /data/crypto/hasil
@@ -54,14 +58,26 @@ sleep 3
 echo "=================================================="
 echo "✅ SEMUA SISTEM BERJALAN!"
 echo "🌐 Dashboard Lokal : http://localhost:5000"
-echo "📱 QR Code publik  : Sedang digenerate oleh Pinggy..."
 echo "⬇️  Tekan CTRL+C untuk mematikan semua sistem."
 echo "=================================================="
 echo ""
-echo "📡 Membuka Tunnel Pinggy... (tekan 'u' untuk QR Code Unicode, 'c' untuk ASCII)"
-ssh -p 443 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -R0:localhost:5000 a.pinggy.io
 
-# Jika Pinggy dihentikan (CTRL+C), matikan semua background process
+# Coba jalankan Pinggy, tapi kalau gagal -> fallback ke Flask foreground
+echo "📡 Mencoba membuka Tunnel Pinggy..."
+ssh -p 443 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 -o ConnectTimeout=10 -R0:localhost:5000 a.pinggy.io 2>/dev/null
+
+# Kalau Pinggy gagal (no internet / timeout), jangan matikan sistem!
+if [ $? -ne 0 ]; then
+    echo ""
+    echo "⚠️  Pinggy gagal (tidak ada internet). Dashboard tetap berjalan di localhost!"
+    echo "🌐 Buka browser: http://localhost:5000"
+    echo "⬇️  Tekan CTRL+C untuk mematikan semua sistem."
+    echo ""
+    # Tunggu di sini supaya script tidak langsung exit
+    wait $FLASK_PID
+fi
+
+# Jika Pinggy/Flask dihentikan (CTRL+C), matikan semua background process
 echo ""
 echo "Mematikan pipeline..."
 pkill -f 'producer_api.py' 2>/dev/null
@@ -73,3 +89,4 @@ kill $SPARK_PID 2>/dev/null
 docker-compose -f docker-compose-kafka.yml down 2>/dev/null
 docker-compose -f docker-compose-hadoop.yml down 2>/dev/null
 echo "✅ Semua sistem berhasil dimatikan."
+
