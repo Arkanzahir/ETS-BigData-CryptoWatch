@@ -10,3 +10,5 @@ dashboard/data/*.json
 # HDFS / Hadoop temp files
 /tmp/
 *.log
+test_connection.py
+spark/*.ipynb
