@@ -1,6 +1,6 @@
 """
 producer_api.py — CoinGecko Price Producer
-# [Ananda Widi Alrafi]: Setup Kafka producer untuk API real-time CoinGecko
+# [Zahra Hafidzah]: Setup Kafka producer untuk API real-time CoinGecko
 
 Polling CoinGecko Simple Price API setiap 60 detik.
 Mengirim harga BTC, ETH, BNB ke topic 'crypto-api'.
