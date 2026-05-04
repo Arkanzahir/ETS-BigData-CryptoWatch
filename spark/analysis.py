@@ -239,16 +239,27 @@ try:
 
     import subprocess
     subprocess.run(["docker", "cp", local_tmp, "hadoop-namenode:/tmp/spark_results.json"], timeout=15)
+    # Hapus file lama di HDFS beserta file _COPYING_ yang nyangkut (jika ada)
     subprocess.run([
         "docker", "exec", "hadoop-namenode",
-        "hdfs", "dfs", "-put", "-f", "/tmp/spark_results.json", f"{HDFS_OUTPUT_PATH}spark_results.json"
+        "hdfs", "dfs", "-rm", "-f", "/data/crypto/hasil/spark_results.json", "/data/crypto/hasil/spark_results.json._COPYING_"
+    ], timeout=30, stderr=subprocess.DEVNULL)
+    # Masukkan file baru
+    subprocess.run([
+        "docker", "exec", "hadoop-namenode",
+        "hdfs", "dfs", "-put", "-f", "/tmp/spark_results.json", "/data/crypto/hasil/spark_results.json"
     ], timeout=30)
-    print(f"  ✅ HDFS: {HDFS_OUTPUT_PATH}spark_results.json")
+    print(f"  ✅ HDFS: /data/crypto/hasil/spark_results.json")
 except Exception as e:
     print(f"  ⚠️  HDFS save error: {e}")
 
 print("\n" + "=" * 70)
 print("  ✅ Semua analisis selesai!")
 print("=" * 70)
+
+import time
+print("\n⏳ [DEMO MODE] Menahan Web UI Spark tetap menyala selama 5 menit untuk presentasi...")
+print("🌐 Silakan buka http://localhost:4040 di browser sekarang!")
+time.sleep(300)
 
 spark.stop()
